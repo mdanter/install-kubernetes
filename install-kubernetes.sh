@@ -223,7 +223,9 @@ function install_cni(){
   echo "Installing Calico CNI"
   for manifest in tigera-operator custom-resources; do
     echo "==> Installing Calico ${manifest}"
-    kubectl create -f ${CALICO_URL}/${manifest}.yaml 3>&2 >> $LOG_FILE 2>&1
+    wget ${CALICO_URL}/${manifest}.yaml
+    sed -i 's/192.168.0.0\/16/10.200.0.0\/16/g' ${manifest}.yaml
+    kubectl create -f ${manifest}.yaml 3>&2 >> $LOG_FILE 2>&1
   done
 }
 
@@ -253,7 +255,7 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 kubernetesVersion: v${KUBE_VERSION}
 networking:
-  podSubnet: 192.168.0.0/16
+  podSubnet: 10.200.0.0/16
 controlPlaneEndpoint: "${MAIN_IP}:6443"
 EOF
     # use config file for kubeadm
